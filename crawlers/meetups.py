@@ -14,7 +14,7 @@ def main():
     #get_belgian_meetup_groups(MEETUP_API_KEY)
     get_belgian_meetup_group_members(MEETUP_API_KEY)
     get_belgian_meetup_group_rsvps(MEETUP_API_KEY)
-
+    logging.info('All done!')
 
 def get_meetup_members(api_key, group_urlname, reload_existing=True):
     members_url = '/2/members/'
@@ -60,9 +60,7 @@ def get_belgian_meetup_group_rsvps(api_key):
         for group in groups:
             get_meetup_rsvps(MEETUP_API_KEY, group['urlname'], reload_existing=False)
 
-
 def get_meetup_data(api_key, endpoint, params, outfile='', reload_existing=True):
-
     if not reload_existing and outfile != '' and os.path.isfile(outfile):
         with open(outfile, 'r') as f:
             return json.load(f)
