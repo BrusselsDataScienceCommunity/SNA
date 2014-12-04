@@ -1,7 +1,13 @@
 import numpy
 import pandas as pd
 from pylab import *
-
+cdict = {'red':   ((0.0, 0.9, 0.9),
+                   (1.0, 1.0, 1.0)),
+         'green': ((0.0, 0.9, 0.9),
+                   (1.0, 0.9, 0.9)),
+         'blue':  ((0.0, 1.0, 1.0),
+                   (1.0, 0.9, 0.9))}
+LightRdBu = matplotlib.colors.LinearSegmentedColormap('LightRdBu', cdict)
 numpy.set_printoptions(linewidth=165)
 
 df = pd.read_csv('output/new-old-metrics.csv')
@@ -28,21 +34,33 @@ def barplot(ax,X, xlabel='x', fraction=False):
     if fraction:
         binY_means = [Y[numpy.where(inds==ibin)].mean() for ibin in xrange(len(bins))]
         bar(bins,binY_means,width=bins[1]-bins[0])
+        model = linear_model.LogisticRegression(fit_intercept=True)
+        model.fit(X.reshape((-1,1)),Y)
+        proba = model.predict_proba(bins.reshape((-1,1)))
+        plot(bins,proba,'--')
     else:
         binY_totals = [len(numpy.where(inds==ibin)[0]) for ibin in xrange(len(bins))]
         binY_hits = [Y[numpy.where(inds==ibin)].sum() for ibin in xrange(len(bins))]
-        print bins, binY_totals, binY_hits, bins[1]-bins[0]
+        #print bins, binY_totals, binY_hits, bins[1]-bins[0]
         #ax.set_yscale('log')
         bar(bins,binY_totals,width=bins[1]-bins[0],log=True)
         bar(bins,binY_hits,width=bins[1]-bins[0],color='green',log=True)
+
 
 def scatterplot(ax,X1,X2,Xlabel,Ylabel):
     ind=numpy.argsort(Y)
     print len(numpy.where(Y==0)[0])
     ax.set_xlabel(Xlabel, fontsize=14, labelpad=0)
     ax.set_ylabel(Ylabel, fontsize=14,labelpad=0)
-    ax.scatter(X1[ind], X2[ind], s=5, c=Y[ind], vmin=-1, vmax=1, lw = 0,alpha=0.4)#, cmap=BinaryRdBu
-
+    model = linear_model.LogisticRegression(fit_intercept=True)
+    model.fit(numpy.asarray([X1,X2]).T,Y)
+    binsX1 = numpy.linspace(X1.min(),X1.max(),n_bins)
+    binsX2 = numpy.linspace(X2.min(),X2.max(),n_bins)
+    gridx1,gridx2 = numpy.asarray(numpy.meshgrid(binsX1,binsX2))
+    proba = model.predict_proba(numpy.array([numpy.hstack(gridx1),numpy.hstack(gridx2)]).T)
+    ax.pcolor(binsX1, binsX2, proba[:,0].reshape((n_bins,n_bins)), cmap=LightRdBu, vmin=0, vmax=1)
+    ax.scatter(X1[ind], X2[ind], s=5, c=Y[ind], vmin=-1, vmax=1, lw = 0)#, cmap=BinaryRdBu
+    
 #for a first assessment this plots each characteristic indvidiually showing how many members in general and how many BSD members exist as a function of characteristic (histogram)
 fig = figure(figsize=(8, 6))
 for i in xrange(3):
