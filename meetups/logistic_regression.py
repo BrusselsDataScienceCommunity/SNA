@@ -43,14 +43,19 @@ def scatterplot(ax,X1,X2,Xlabel,Ylabel):
     ax.set_ylabel(Ylabel, fontsize=14,labelpad=0)
     ax.scatter(X1[ind], X2[ind], s=5, c=Y[ind], vmin=-1, vmax=1, lw = 0,alpha=0.4)#, cmap=BinaryRdBu
 
+#for a first assessment this plots each characteristic indvidiually showing how many members in general and how many BSD members exist as a function of characteristic (histogram)
 fig = figure(figsize=(8, 6))
 for i in xrange(3):
     ax = fig.add_subplot(2,2,i+1)
     barplot(ax,X[:,i],Xlabels[i],fraction=False)
+
+#this plot is the quotient of the above histograms for each characteristic. This is the data, that the logistic function is fitted to, and will allow to check the quality of the fit. (well, this were true if only characteristic was fitted at a time)
 fig = figure(figsize=(8, 6))
 for i in xrange(3):
     ax = fig.add_subplot(2,2,i+1)
     barplot(ax,X[:,i],Xlabels[i],fraction=True)
+
+#this is is similar to the first plot but showing two characteristics in a 2d plot (which is the relevant version because sklearn will perform its fit in all three dimensions as we used it)
 fig = figure(figsize=(8, 8))
 ax = fig.add_subplot(2,2,1)
 scatterplot(ax,X[:,0],X[:,1],Xlabels[0],Xlabels[1])
